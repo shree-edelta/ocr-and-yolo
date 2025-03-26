@@ -1,0 +1,9 @@
+env/
+
+MJSynth_text_recognition/
+
+dataset/
+
+object.v2i.yolov5pytorch/
+yolov5/
+car_demo_yolov3/
