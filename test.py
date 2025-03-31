@@ -75,13 +75,11 @@
 import tensorflow as tf
 import numpy as np
 import cv2 as cv
-
-# Assuming you have a mapping from class indices to characters (you need to adjust based on your dataset)
 class_to_char = {
     0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'j',
     10: 'k', 11: 'l', 12: 'm', 13: 'n', 14: 'o', 15: 'p', 16: 'q', 17: 'r', 18: 's',
     19: 't', 20: 'u', 21: 'v', 22: 'w', 23: 'x', 24: 'y', 25: 'z', 26: '0', 27: '1',
-    28: '2', 29: '3', 30: '4', 31: '5', 32: '6', 33: '7', 34: '8', 35: '9', 36: ' ',  # assuming space as class 36
+    28: '2', 29: '3', 30: '4', 31: '5', 32: '6', 33: '7', 34: '8', 35: '9', 36: ' ',  
 }
 
 def remove_consecutive_duplicates(predictions):
@@ -93,32 +91,51 @@ def remove_consecutive_duplicates(predictions):
         previous = prediction
     return new_predictions
 
-# Load the pre-trained model
-loaded_model = tf.keras.models.load_model('ocr.keras', compile=False)
+loaded_model = tf.keras.models.load_model('ocr_model.keras', compile=False)
 
-# Load and preprocess the image
-img = cv.imread('images/form.png')
+img = cv.imread('images/name.jpg')
 img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-img_r = cv.resize(img_gray, (208, 52))  # Resize to the target dimensions
+img_r = cv.resize(img_gray, (208, 52)) 
 
-# Normalize and reshape the image to match the model's input shape
-img_r = np.expand_dims(img_r, axis=-1)  # Add channel dimension (grayscale)
+img_r = np.expand_dims(img_r, axis=-1)  
 img_r = np.expand_dims(img_r, axis=0) 
-
-# Make predictions with the model
+print(img_r.shape)
 predictions = loaded_model.predict(img_r)
 
-# Get the predicted class indices (most probable class at each timestep)
-predicted_indices = np.argmax(predictions, axis=-1)  # Get the class indices
 
-# Flatten the predicted indices (since it can be in a sequence)
-predicted_indices = predicted_indices.flatten()
+print(predictions.shape)
+# for i, pred in enumerate(predictions[0]):
+#     print(f"Time Step {i}: {pred}")
+# predicted_indices = np.argmax(predictions[0], axis=-1) 
+# print(predicted_indices)
+# predicted_indices = predicted_indices.flatten()
 
-# Remove consecutive duplicate indices (e.g., "ee" or "ss")
-filtered_predictions = remove_consecutive_duplicates(predicted_indices)
 
-# Map the indices back to characters
-predicted_string = ''.join([class_to_char.get(index, '') for index in filtered_predictions])
+# # filtered_predictions = remove_consecutive_duplicates(predicted_indices)
 
-# Print the final output string
-print(f"Predicted String: {predicted_string}")
+# predicted_string = ''.join([class_to_char.get(index, '') for index in predicted_indices])
+
+# print(f"Predicted String: {predicted_string}")
+from tensorflow.keras.backend import ctc_decode
+import numpy as np
+
+
+class_to_char = {
+    0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'j',
+    10: 'k', 11: 'l', 12: 'm', 13: 'n', 14: 'o', 15: 'p', 16: 'q', 17: 'r', 18: 's', 
+    19: 't', 20: 'u', 21: 'v', 22: 'w', 23: 'x', 24: 'y', 25: 'z', 26: ' ', 27: 'A',
+    28: 'B', 29: 'C', 30: 'D', 31: 'E', 32: 'F', 33: 'G', 34: 'H', 35: 'I', 36: 'J'
+   
+}
+
+
+decoded, _ = ctc_decode(predictions, input_length=np.ones(predictions.shape[0]) * predictions.shape[1], greedy=True)
+print("decoded.............",decoded)
+decoded_sequence = decoded[0].numpy() 
+print("decoded shape",decoded_sequence.shape)
+print(decoded_sequence) 
+predicted_text = ''.join([class_to_char.get(int(idx), '') for idx in decoded_sequence.flatten() if idx != -1])
+
+print(predicted_text)
+
+

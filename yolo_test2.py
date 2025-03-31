@@ -5,8 +5,10 @@ from PIL import Image
 import matplotlib.pyplot as plt
 model = torch.hub.load('ultralytics/yolov5', 'custom', path='yolov5/runs/train/exp5/weights/best.pt', force_reload=True)  
 model.eval()
+# model = torch.load('yolov5/runs/train/exp5/weights/best.pt', weights_only=False)
+# model.eval()  
 
-image_path = 'images/hform2.jpg'
+image_path = 'images/ff4.jpg'
 image = cv2.imread(image_path)
 
 orig_height, orig_width = image.shape[:2]
@@ -20,15 +22,15 @@ predictions = results.xywh[0]
 
 conf_threshold = 0.4
 predictions = predictions[predictions[:, 4] > conf_threshold]
-colors = np.random.uniform(0, 255, size=(len(class_name), 3))
+# colors = np.random.uniform(0, 255, size=(len(class_name), 3))
 for pred in predictions:
     print("cls//////",pred)
     x_center, y_center, width, height, conf, cls = pred.tolist()
 
-    x1 = int((x_center - width / 2))  # Left
-    y1 = int((y_center - height / 2))  # Top
-    x2 = int((x_center + width / 2))  # Right
-    y2 = int((y_center + height / 2))  # Bottom
+    x1 = int((x_center - width / 2))  
+    y1 = int((y_center - height / 2))  
+    x2 = int((x_center + width / 2))  
+    y2 = int((y_center + height / 2)) 
 
     scale_x = orig_width / 640
     scale_y = orig_height / 640
