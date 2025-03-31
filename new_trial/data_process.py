@@ -6,13 +6,13 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tqdm import tqdm
 
 # Define dataset paths
-train_csv_path = "dataset/written_name_train_v2.csv"
-test_csv_path = "dataset/written_name_test_v2.csv"
-val_csv_path = "dataset/written_name_validation_v2.csv"
+train_csv_path = "../dataset/written_name_train_v2.csv"
+test_csv_path = "../dataset/written_name_test_v2.csv"
+val_csv_path = "../dataset/written_name_validation_v2.csv"
 
-train_image_dir = "dataset/train_v2/train/"
-test_image_dir = "dataset/test_v2/test/"
-val_image_dir = "dataset/validation_v2/validation/"
+train_image_dir = "../dataset/train_v2/train/"
+test_image_dir = "../dataset/test_v2/test/"
+val_image_dir = "../dataset/validation_v2/validation/"
 
 # Define image size
 IMG_WIDTH = 208

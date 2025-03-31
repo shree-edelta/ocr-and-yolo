@@ -1,75 +1,75 @@
-# import tensorflow as tf
-# import pandas as pd
-# import numpy as np
-# from PIL import Image
-# import cv2 as cv
-# # import changes as ch
-# import matplotlib.pyplot as plt
+import tensorflow as tf
+import pandas as pd
+import numpy as np
+from PIL import Image
+import cv2 as cv
+# import changes as ch
+import matplotlib.pyplot as plt
 
-# def resize_images(img, target_height, target_width):
-#     resized_images = []
-#     img_resized = tf.image.resize(img, (target_height, target_width))
-#     img_resized = tf.image.convert_image_dtype(img_resized, tf.float32)
-#     img_resized /= 255.0
-#     resized_images.append(img_resized)
-#     return np.array(resized_images)
+def resize_images(img, target_height, target_width):
+    resized_images = []
+    img_resized = tf.image.resize(img, (target_height, target_width))
+    img_resized = tf.image.convert_image_dtype(img_resized, tf.float32)
+    img_resized /= 255.0
+    resized_images.append(img_resized)
+    return np.array(resized_images)
 
-# def load_image(image_array, target_size=(32, 128)):
-#     img = image_array.resize(target_size)
-#     img_array = np.array(img) / 255.0  # Normalize
-#     return img_array
-
-
-# loaded_model = tf.keras.models.load_model('ocr.keras', compile=False)
+def load_image(image_array, target_size=(52, 208)):
+    img = image_array.resize(target_size)
+    img_array = np.array(img) / 255.0  # Normalize
+    return img_array
 
 
-# # test_images, test_labels = ch.convert_data('dataset/test_process_data.csv')
-
-# # max_label_length = max(len(label) for label in test_labels)
-# # test_images_resized = ch.resize_images(test_images, 32, 128) 
-# # test_labels_padded = ch.pad_sequences(test_labels, maxlen=max_label_length, padding='post', value=0)  
+loaded_model = tf.keras.models.load_model('ocr_model.keras', compile=False)
 
 
-# # test_loss = loaded_model.evaluate(test_images_resized, test_labels_padded)
-# # print(f'Test Loss: {test_loss}')
+# test_images, test_labels = ch.convert_data('dataset/test_process_data.csv')
 
-# # # predictions on test data
-# # y_pred = loaded_model.predict(test_images_resized)
-# # print(f"Predicted shape: {y_pred.shape}")
-
-# # img  =  "hform.jpg"
-# img = cv.imread('images/hf.jpg')
-# img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-# img_r = cv.resize(img_gray, (208, 52))
+# max_label_length = max(len(label) for label in test_labels)
+# test_images_resized = ch.resize_images(test_images, 32, 128) 
+# test_labels_padded = ch.pad_sequences(test_labels, maxlen=max_label_length, padding='post', value=0)  
 
 
-# cv.imshow("img", img)
-# cv.waitKey(0)
+# test_loss = loaded_model.evaluate(test_images_resized, test_labels_padded)
+# print(f'Test Loss: {test_loss}')
 
-# cv.imshow("img_gray", img_r)
-# cv.waitKey(0)
+# # predictions on test data
+# y_pred = loaded_model.predict(test_images_resized)
+# print(f"Predicted shape: {y_pred.shape}")
 
-# cv.destroyAllWindows()
-
-# print(img.shape)
-# print(img_r.shape)
-# # img_resize = resize_images(img, 32, 128)
-# # print(img_l)
-# img_r = np.expand_dims(img_r, axis=-1)  
-
-# img_r = np.expand_dims(img_r, axis=0) 
+# img  =  "hform.jpg"
+img = cv.imread('images/name.jpg')
+img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+img_r = cv.resize(img_gray, (208, 52))
 
 
-# predictions = loaded_model.predict(img_r)
-# print(predictions)
+cv.imshow("img", img)
+cv.waitKey(0)
 
-# predicted_indices = np.argmax(predictions, axis=-1)  # Get indices of max probability
+cv.imshow("img_gray", img_r)
+cv.waitKey(0)
 
-# # Assuming predicted_indices has shape (1, sequence_length), you can reshape or flatten if needed
-# predicted_indices = predicted_indices.flatten()
-# print(predicted_indices)
-# # predicted_class = np.argmax(predictions, axis=-1)
-# # print(f"Predicted class: {predicted_class}")
+cv.destroyAllWindows()
+
+print(img.shape)
+print(img_r.shape)
+# img_resize = resize_images(img, 32, 128)
+# print(img_l)
+img_r = np.expand_dims(img_r, axis=-1)  
+
+img_r = np.expand_dims(img_r, axis=0) 
+
+
+predictions = loaded_model.predict(img_r)
+print(predictions)
+
+predicted_indices = np.argmax(predictions, axis=-1)  # Get indices of max probability
+
+# Assuming predicted_indices has shape (1, sequence_length), you can reshape or flatten if needed
+predicted_indices = predicted_indices.flatten()
+print(predicted_indices)
+# predicted_class = np.argmax(predictions, axis=-1)
+# print(f"Predicted class: {predicted_class}")
 
 
 import tensorflow as tf
@@ -91,7 +91,7 @@ def remove_consecutive_duplicates(predictions):
         previous = prediction
     return new_predictions
 
-loaded_model = tf.keras.models.load_model('ocr_model.keras', compile=False)
+# loaded_model = tf.keras.models.load_model('ocr_model.keras', compile=False)
 
 img = cv.imread('images/name.jpg')
 img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -101,11 +101,12 @@ img_r = np.expand_dims(img_r, axis=-1)
 img_r = np.expand_dims(img_r, axis=0) 
 print(img_r.shape)
 predictions = loaded_model.predict(img_r)
-
+print(predictions)
 
 print(predictions.shape)
 # for i, pred in enumerate(predictions[0]):
-#     print(f"Time Step {i}: {pred}")
+    # print(f"Time Step {i}: {pred}")
+    
 # predicted_indices = np.argmax(predictions[0], axis=-1) 
 # print(predicted_indices)
 # predicted_indices = predicted_indices.flatten()
@@ -130,7 +131,7 @@ class_to_char = {
 
 
 decoded, _ = ctc_decode(predictions, input_length=np.ones(predictions.shape[0]) * predictions.shape[1], greedy=True)
-print("decoded.............",decoded)
+print("decoded.............",len(decoded))
 decoded_sequence = decoded[0].numpy() 
 print("decoded shape",decoded_sequence.shape)
 print(decoded_sequence) 

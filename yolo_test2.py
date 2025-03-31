@@ -8,7 +8,7 @@ model.eval()
 # model = torch.load('yolov5/runs/train/exp5/weights/best.pt', weights_only=False)
 # model.eval()  
 
-image_path = 'images/ff4.jpg'
+image_path = 'images/ff.jpg'
 image = cv2.imread(image_path)
 
 orig_height, orig_width = image.shape[:2]

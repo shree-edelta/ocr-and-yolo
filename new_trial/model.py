@@ -30,12 +30,12 @@ max_label_len = max(map(len, train_labels))
 train_labels = tf.keras.preprocessing.sequence.pad_sequences(train_labels, maxlen=max_label_len, padding="post")
 val_labels = tf.keras.preprocessing.sequence.pad_sequences(val_labels, maxlen=max_label_len, padding="post")
 test_labels = tf.keras.preprocessing.sequence.pad_sequences(test_labels, maxlen=max_label_len, padding="post")
-
+print(train_labels[0].shape)
 # Convert to TensorFlow dataset
 train_dataset = tf.data.Dataset.from_tensor_slices((train_images, train_labels)).batch(32)
 val_dataset = tf.data.Dataset.from_tensor_slices((val_images, val_labels)).batch(32)
 test_dataset = tf.data.Dataset.from_tensor_slices((test_images, test_labels)).batch(32)
-
+print("train_dataset element spec",train_dataset.element_spec)
 
 # build ocr
 
@@ -84,102 +84,102 @@ model = Model(inputs=[inputs, labels, input_length, label_length], outputs=ctc_l
 
 # Compile Model
 model.compile(optimizer="adam")
-model.summary()
+print(model.summary())
 
 
-# train model
+# # train model
 
-# Define input lengths
-train_input_length = np.ones((len(train_labels), 1)) * (train_images.shape[1] // 4)
-train_label_length = np.expand_dims(np.array([len(label) for label in train_labels]), axis=-1)
+# # Define input lengths
+# train_input_length = np.ones((len(train_labels), 1)) * (train_images.shape[1] // 4)
+# train_label_length = np.expand_dims(np.array([len(label) for label in train_labels]), axis=-1)
 
-val_input_length = np.ones((len(val_labels), 1)) * (val_images.shape[1] // 4)
-val_label_length = np.expand_dims(np.array([len(label) for label in val_labels]), axis=-1)
+# val_input_length = np.ones((len(val_labels), 1)) * (val_images.shape[1] // 4)
+# val_label_length = np.expand_dims(np.array([len(label) for label in val_labels]), axis=-1)
 
-# Train the model
-model.fit(
-    x=[train_images, train_labels, train_input_length, train_label_length],
-    y=np.zeros(len(train_images)),  # Dummy target for CTC loss
-    validation_data=([val_images, val_labels, val_input_length, val_label_length], np.zeros(len(val_images))),
-    batch_size=32,
-    epochs=20
-)
+# # Train the model
+# model.fit(
+#     x=[train_images, train_labels, train_input_length, train_label_length],
+#     y=np.zeros(len(train_images)),  # Dummy target for CTC loss
+#     validation_data=([val_images, val_labels, val_input_length, val_label_length], np.zeros(len(val_images))),
+#     batch_size=32,
+#     epochs=20
+# )
 
-# Evaluate on test data
+# # Evaluate on test data
+# # test_loss, test_accuracy = model.evaluate(test_images, test_labels)
+
+# # print(f"Test Loss: {test_loss:.4f}")
+# # print(f"Test Accuracy: {test_accuracy:.4f}")
+
+
+# import numpy as np
+# import Levenshtein
+
+# # Evaluate model
 # test_loss, test_accuracy = model.evaluate(test_images, test_labels)
+
+# # Calculate Character Error Rate (CER)
+# def calculate_cer(predictions, actuals):
+#     total_errors, total_chars = 0, 0
+#     for pred, act in zip(predictions, actuals):
+#         total_errors += Levenshtein.distance(pred, act)
+#         total_chars += len(act)
+#     return total_errors / total_chars
+
+# # Calculate Word Error Rate (WER)
+# def calculate_wer(predictions, actuals):
+#     total_errors, total_words = 0, 0
+#     for pred, act in zip(predictions, actuals):
+#         pred_words, act_words = pred.split(), act.split()
+#         total_errors += Levenshtein.distance(" ".join(pred_words), " ".join(act_words))
+#         total_words += len(act_words)
+#     return total_errors / total_words
+
+# # Calculate Sequence Accuracy
+# def sequence_accuracy(predictions, actuals):
+#     correct = sum(1 for pred, act in zip(predictions, actuals) if pred == act)
+#     return correct / len(actuals)
+# import numpy as np
+
+# # Define character mapping (ensure it matches your training tokenizer)
+# CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"  # Example
+# CHAR_MAP = {i: char for i, char in enumerate(CHARACTERS)}
+# BLANK_INDEX = len(CHAR_MAP)  # If using CTC Loss
+
+# def ctc_decode(predictions):
+#     """
+#     Convert softmax output to text using CTC decoding.
+#     """
+#     decoded_texts = []
+    
+#     for pred in predictions:
+#         # Convert probability distributions to character indices
+#         char_indices = np.argmax(pred, axis=1)  # Get highest probability index per timestep
+        
+#         # Remove duplicate consecutive characters & blanks
+#         decoded_text = []
+#         prev_char = None
+#         for idx in char_indices:
+#             if idx != prev_char and idx != BLANK_INDEX:  # Ignore repeated characters and blank index
+#                 decoded_text.append(CHAR_MAP.get(idx, ""))  # Map index to character
+#             prev_char = idx
+
+#         decoded_texts.append("".join(decoded_text))
+    
+#     return decoded_texts
+
+# # Get model predictions
+# predictions = model.predict(test_images)
+# decoded_predictions = ctc_decode(predictions)  # Ensure you have a decoding function
+
+# # Compute error metrics
+# cer = calculate_cer(decoded_predictions, test_labels)
+# wer = calculate_wer(decoded_predictions, test_labels)
+# seq_acc = sequence_accuracy(decoded_predictions, test_labels)
 
 # print(f"Test Loss: {test_loss:.4f}")
 # print(f"Test Accuracy: {test_accuracy:.4f}")
-
-
-import numpy as np
-import Levenshtein
-
-# Evaluate model
-test_loss, test_accuracy = model.evaluate(test_images, test_labels)
-
-# Calculate Character Error Rate (CER)
-def calculate_cer(predictions, actuals):
-    total_errors, total_chars = 0, 0
-    for pred, act in zip(predictions, actuals):
-        total_errors += Levenshtein.distance(pred, act)
-        total_chars += len(act)
-    return total_errors / total_chars
-
-# Calculate Word Error Rate (WER)
-def calculate_wer(predictions, actuals):
-    total_errors, total_words = 0, 0
-    for pred, act in zip(predictions, actuals):
-        pred_words, act_words = pred.split(), act.split()
-        total_errors += Levenshtein.distance(" ".join(pred_words), " ".join(act_words))
-        total_words += len(act_words)
-    return total_errors / total_words
-
-# Calculate Sequence Accuracy
-def sequence_accuracy(predictions, actuals):
-    correct = sum(1 for pred, act in zip(predictions, actuals) if pred == act)
-    return correct / len(actuals)
-import numpy as np
-
-# Define character mapping (ensure it matches your training tokenizer)
-CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"  # Example
-CHAR_MAP = {i: char for i, char in enumerate(CHARACTERS)}
-BLANK_INDEX = len(CHAR_MAP)  # If using CTC Loss
-
-def ctc_decode(predictions):
-    """
-    Convert softmax output to text using CTC decoding.
-    """
-    decoded_texts = []
-    
-    for pred in predictions:
-        # Convert probability distributions to character indices
-        char_indices = np.argmax(pred, axis=1)  # Get highest probability index per timestep
-        
-        # Remove duplicate consecutive characters & blanks
-        decoded_text = []
-        prev_char = None
-        for idx in char_indices:
-            if idx != prev_char and idx != BLANK_INDEX:  # Ignore repeated characters and blank index
-                decoded_text.append(CHAR_MAP.get(idx, ""))  # Map index to character
-            prev_char = idx
-
-        decoded_texts.append("".join(decoded_text))
-    
-    return decoded_texts
-
-# Get model predictions
-predictions = model.predict(test_images)
-decoded_predictions = ctc_decode(predictions)  # Ensure you have a decoding function
-
-# Compute error metrics
-cer = calculate_cer(decoded_predictions, test_labels)
-wer = calculate_wer(decoded_predictions, test_labels)
-seq_acc = sequence_accuracy(decoded_predictions, test_labels)
-
-print(f"Test Loss: {test_loss:.4f}")
-print(f"Test Accuracy: {test_accuracy:.4f}")
-print(f"Character Error Rate (CER): {cer:.4f}")
-print(f"Word Error Rate (WER): {wer:.4f}")
-print(f"Sequence Accuracy: {seq_acc:.4f}")
+# print(f"Character Error Rate (CER): {cer:.4f}")
+# print(f"Word Error Rate (WER): {wer:.4f}")
+# print(f"Sequence Accuracy: {seq_acc:.4f}")
 

@@ -18,7 +18,7 @@ val_labels = dfv['IDENTITY']
 
 
 # preprocess
-def load_image(image_path, target_size=(64, 64)):
+def load_image(image_path, target_size=(52, 208)):
     img = Image.open(image_path)
     img = img.resize(target_size)
     img_array = np.array(img) / 255.0  # Normalize
