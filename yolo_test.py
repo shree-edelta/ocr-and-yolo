@@ -12,11 +12,12 @@ model.eval()  # Set model to evaluation mode
 
 
 
-image_path = 'images/hform.jpg'
+image_path = 'images/ff.jpg'
 image = cv2.imread(image_path)
 
 rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-org_h,org_w = rgb_image.shape
+org_h,org_w = rgb_image.shape[:2]
+# rig_height, orig_width = image.shape[:2]
 resized_image = cv2.resize(rgb_image, (640, 640)) 
 print(resized_image.shape)
 results = model(resized_image)
@@ -51,15 +52,31 @@ print("split prediction",predictions[:, 4])
 filtered_predictions = predictions[predictions[:, 4] > conf_threshold]
 print("filter prediction",filtered_predictions)
 # Draw bounding boxes and labels on the image
-for *xywh, conf, cls in filtered_predictions:
-    xywh = (xywh-np.mean(xywh))/np.std(xywh)
-    x1, y1, x2, y2 = xywh[0] - xywh[2] / 2, xywh[1] - xywh[3] / 2, xywh[0] + xywh[2] / 2, xywh[1] + xywh[3] / 2
+for pred in filtered_predictions:
+    # xywh = (xywh-np.mean(xywh))/np.std(xywh)
+    # x1, y1, x2, y2 = xywh[0] - xywh[2] / 2, xywh[1] - xywh[3] / 2, xywh[0] + xywh[2] / 2, xywh[1] + xywh[3] / 2
+    print("cls//////",pred)
+    x_center, y_center, width, height, conf, cls = pred.tolist()
+    x1 = int((x_center - width / 2))  
+    y1 = int((y_center - height / 2))  
+    x2 = int((x_center + width / 2))  
+    y2 = int((y_center + height / 2)) 
+
+    scale_x = org_w / 640
+    scale_y = org_h / 640
     
-    print(x1, y1, x2, y2)
+    x1 = int(x1 * scale_x)
+    y1 = int(y1 * scale_y)
+    x2 = int(x2 * scale_x)
+    y2 = int(y2 * scale_y)
+
+    x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+
+    print(f"Bounding box: ({x1}, {y1}), ({x2}, {y2})")
     cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
     label = f'{model.names[int(cls)]} {conf:.2f}'
     cv2.putText(image, label, (int(x1), int(y1 - 5)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
+    print("label",label)
 # Save or display the result
 cv2.imwrite('output_image.jpg', image)  # Save result
 cv2.imshow('Detection Result', image)  # Display result
